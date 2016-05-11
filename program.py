@@ -3,7 +3,11 @@ import socket
 import sys
 import threading
 import time
+import os
+from getch import getch, pause
 
+#wirtualka: 192.168.122.29
+#jasam:     192.168.1.118
 global port_num
 port_num=int(sys.argv[1])
 
@@ -31,9 +35,11 @@ class Server:
         self.open_socket()
         input=[self.server,sys.stdin]
         running=1
-
-        station=Station()
+        key=0
+        station=Station('localhost')
         station.start()
+        gui=GUI()
+        gui.start()
         self.threads.append(station)
         while running:
             inputready,outputready,exceptready=select.select(input,[],[])
@@ -43,9 +49,7 @@ class Server:
                     c=Client(self.server.accept())
                     c.start()
                     self.threads.append(c)
-                elif s==sys.stdin:
-                    junk=sys.stdin.readline()
-                    running=0
+                    print "Ilosc watkow: %s" % len(self.threads)
 
         self.server.close()
         for c in self.threads:
@@ -53,9 +57,9 @@ class Server:
 
 
 class Station(threading.Thread):
-    def __init__(self):
+    def __init__(self, address):
         threading.Thread.__init__(self)
-        self.host='192.168.1.105'
+        self.host=address
         self.port=port_num
         self.size=1024
         self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -70,6 +74,23 @@ class Station(threading.Thread):
             #sys.stdout.write(self.data)
         self.s.close()
 
+class GUI(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+    def run(self):
+        key=0
+        while 1:
+            key = getch()
+            if key=='h':
+                print 'Wprowadz:\n c - aby wyczyscic konsole\n q - zeby zakonczyc dzialanie programu'
+            elif key=='q':
+                serwer.server.shutdown(1)
+                print "Koniec dzialania programu"
+                os._exit(1)
+            elif key=='c':
+                os.system('clear')
+            else:
+                print "wpisz h (help) aby poznac opcje"
 
 class Client(threading.Thread):
     def __init__(self,(client,address)):
@@ -88,9 +109,9 @@ class Client(threading.Thread):
                 self.client.close()
                 running=0
 
-print "It works!"
-erwer=Server()
-erwer.run()
+print "Program obrazujacy dzialanie algorytmu ADAPT2!"
+serwer=Server()
+serwer.run()
 print "Skonczylem  roobote"
 
 
