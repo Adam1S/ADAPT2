@@ -8,9 +8,9 @@ from getch import getch, pause
 
 #wirtualka: 192.168.122.29
 #jasam:     192.168.1.118
-global port_num
+global port_num, station_ip
 port_num=int(sys.argv[1])
-
+station_ip=sys.argv[2]
 class Server:
     def __init__(self):
         self.host=''
@@ -36,7 +36,7 @@ class Server:
         input=[self.server,sys.stdin]
         running=1
         key=0
-        station=Station('localhost')
+        station=Station(station_ip)
         station.start()
         gui=GUI()
         gui.start()
