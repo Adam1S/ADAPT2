@@ -10,6 +10,8 @@ from colorclass import Color
 
 global port_num
 port_num=int(sys.argv[1])
+global number_of_players
+
 
 class Node:
     def __init__(self):
@@ -19,10 +21,14 @@ class Node:
         self.diagnosis=[]
         self.tests=[]
 
+        self.event.append('0')
+        self.diagnosis.append('0')
+        self.tests.append('0')
+
     def show_status(self):
         table_data=[
             [Color('{autoyellow}NodeID'), Color('NodeNum'), Color('Event'), Color('Diagnosis'), Color('Tests{/autoyellow}')],
-            [self.nodeid, self.nodenum, self.event, self.diagnosis, self.tests]
+            [self.nodeid, self.nodenum, self.event[0], self.diagnosis[0], self.tests[0]]
         ]
         table=SingleTable(table_data)
         table.title=Color('{autored}Structure{/autored}')
@@ -66,6 +72,7 @@ class Server:
     def open_socket(self):
         try:
             self.server=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.server.bind((self.host,self.port))
             self.server.listen(5)
         except socket.error, (value, message):
