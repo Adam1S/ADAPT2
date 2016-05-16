@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: iso-8859-2 -*-
+
 import select
 import socket
 import sys
@@ -8,30 +11,69 @@ from getch import getch, pause
 from terminaltables import SingleTable
 from colorclass import Color
 
+'''
+Program jako parametry przyjmuje:
+    -numer portu
+    -adresy ip kontrahentów
+    -numer ID tej stacji
+'''
 global port_num
-port_num=int(sys.argv[1])
-global number_of_players
+port_num=int(sys.argv[1]) #port na ktorym bedzie dzialac aplikacja
 
+global number_of_players
+number_of_players=len(sys.argv)-3 #wskazuje liczbe uzytkownikow
+
+global id_number
+id_number=int(sys.argv[2])
+
+print "Jesteś graczem numer %s" % (id_number)
 
 class Node:
     def __init__(self):
-        self.nodeid='numerek wezla'
-        self.nodenum='4'
+        self.nodeid=str(id_number)
+        self.nodenum=str(number_of_players)
         self.event=[]
         self.diagnosis=[]
         self.tests=[]
+        self.prescribe_ini()
 
-        self.event.append('0')
-        self.diagnosis.append('0')
-        self.tests.append('0')
+    def prescribe_ini(self):
+        for i in range(number_of_players):
+            self.event.append('-1')
+            self.diagnosis.append('1')
+            self.tests.append('1')
+        self.show_status()
+
+        self.diagnosis[id_number]="0"
+        self.tests[id_number]="2"
+        self.show_status()
 
     def show_status(self):
-        table_data=[
-            [Color('{autoyellow}NodeID'), Color('NodeNum'), Color('Event'), Color('Diagnosis'), Color('Tests{/autoyellow}')],
-            [self.nodeid, self.nodenum, self.event[0], self.diagnosis[0], self.tests[0]]
-        ]
+        print "NodeID: %s NodeNum: %s" %  (self.nodeid, self.nodenum)
+        table_data=[]
+
+        temp=[]
+        temp.append('Event')
+        for i in range (number_of_players):
+            temp.append(self.event[i])
+        table_data.append(temp)
+
+        temp1=[]
+        temp1.append('Diagnosis')
+        for i in range (number_of_players):
+            temp1.append(self.diagnosis[i])
+        table_data.append(temp1)
+
+        temp2=[]
+        temp2.append('Tests')
+        for i in range (number_of_players):
+            temp2.append(self.event[i])
+        table_data.append(temp2)
+
         table=SingleTable(table_data)
-        table.title=Color('{autored}Structure{/autored}')
+        table.title=Color('{autored}Node ID:'+self.nodeid+' NodeNum: ' +
+                          self.nodenum+'{/autored}')
+        table.inner_row_border="True"
         print table.table
 
 class Packet:
@@ -87,16 +129,16 @@ class Server:
         running=1
         key=0
 
-        if len(sys.argv)>2:
-            station2=Station(sys.argv[2])
+        if len(sys.argv)>3:
+            station2=Station(sys.argv[3])
             station2.start()
             self.threads.append(station2)
-        if len(sys.argv)>3:
-            station3=Station(sys.argv[3])
+        if len(sys.argv)>4:
+            station3=Station(sys.argv[4])
             station3.start()
             self.threads.append(station3)
-        if len(sys.argv)>4:
-            station4=Station(sys.argv[4])
+        if len(sys.argv)>5:
+            station4=Station(sys.argv[5])
             station4.start()
             self.threads.append(station4)
 
@@ -176,15 +218,14 @@ class Client(threading.Thread):
             data=self.client.recv(self.size)
             if data:
                 self.client.send(data)
-                print "Otrzymalem: %s" % data
+                print "Otrzymałem: %s" % data
             else:
                 self.client.close()
                 running=0
 
-print "Program obrazujacy dzialanie algorytmu ADAPT2!"
+print "Program obrazujący działanie algorytmu ADAPT2!"
 serwer=Server()
 serwer.run()
 print "Skonczylem  roobote"
-
 
 
