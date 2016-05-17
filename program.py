@@ -75,6 +75,7 @@ class Node:
         table.title=Color('{autored}Node ID:'+self.nodeid+' NodeNum:' +
                           self.nodenum+'{/autored}')
         table.inner_row_border="True"
+        print ""
         print table.table
 
 class Packet:
@@ -101,6 +102,7 @@ class Packet:
         ]
         table2=SingleTable(table_data2)
         table2.title=Color('{autocyan}Packet 2/2{/autocyan}')
+        print ""
         print table2.table
 
 class Server:
@@ -179,7 +181,7 @@ class Station(threading.Thread):
         while running:
             #print "jestem station numer %s i sie zbudzilem i zasne na 5 sek" % (self.nodeid)
             #gui.node.show_status()
-            time.sleep(1)
+            time.sleep(4)
             if phase=="Passive":
                 self.s.send("Are you alive?")
                 self.data=self.s.recv(self.size)
@@ -187,6 +189,10 @@ class Station(threading.Thread):
                     if gui.node.diagnosis[int(self.nodeid)]!="0":
                        phase="Active"
                        print "zmieniam faze na aktywna"
+                else:
+                    if gui.node.diagnosis[int(self.nodeid)]=="0":
+                        phase="Active"
+                        print "zmieniamy faze na aktywna"
             else:
                 os.system('clear')
                 print "active phase"
