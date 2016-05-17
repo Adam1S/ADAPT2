@@ -196,6 +196,7 @@ class Station(threading.Thread):
             else:
                 os.system('clear')
                 print "active phase"
+                self.s.send("ACTIVE PHASE")
 			#print "%s" % self.data
             #sys.stdout.write(self.data)
         self.s.close()
@@ -240,6 +241,9 @@ class Client(threading.Thread):
         while running:
             data=self.client.recv(self.size)
 
+            if data=="ACTIVE PHASE":
+                global phase
+                phase = "Active"
             if data=="Are you alive?":
 				self.client.send("I'm alive")
             else:
